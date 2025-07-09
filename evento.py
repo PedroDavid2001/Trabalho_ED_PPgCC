@@ -1,5 +1,3 @@
-# evento.py
-
 from participante import Participante
 
 

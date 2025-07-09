@@ -1,10 +1,10 @@
-# Lista de constantes que representam 
-# as possiveis opcoes de caracteristicas 
-# para cada participante.
+# Lista de constantes que representam as possiveis opcoes
+# de caracteristicas para cada participante.
 
-# Optei por criar essas variaveis para 
+# Optei por criar essas variaveis para
 # acessar mais facilmente os valores.
 from enum import Enum
+
 
 class Caracteristicas(Enum):
     INTELIGENTE = 0
@@ -18,9 +18,10 @@ class Caracteristicas(Enum):
     PAVIOCURTO = 8
     ARROGANTE = 9
 
-# Para evitar que as caracteristicas sejam 
-# distribuidas aleatoriamente, sera utilizada 
-# uma matriz de adjacencia (grafo) para interligar 
+
+# Para evitar que as caracteristicas sejam
+# distribuidas aleatoriamente, sera utilizada
+# uma matriz de adjacencia (grafo) para interligar
 # caracteristicas que possuam alguma semelhanca.
 
 semelhantes = {}
@@ -32,23 +33,20 @@ for c1 in Caracteristicas:
 
 # Agora basta preencher os indices que tem relacao com 1.
 # E possivel acessa-los com os valores dos proprios itens da enum.
-# Para facilitar o preenchimento foi utilizado o ChatGPT para 
-# preencher os valores.
 
-semelhantes[Caracteristicas.INTELIGENTE][Caracteristicas.PROATIVO] = 1
-semelhantes[Caracteristicas.COMPETITIVO][Caracteristicas.PAVIOCURTO] = 1
-semelhantes[Caracteristicas.AMIGAVEL][Caracteristicas.TAGARELA] = 1
-semelhantes[Caracteristicas.PACIENTE][Caracteristicas.INTELIGENTE] = 1
-semelhantes[Caracteristicas.TIMIDO][Caracteristicas.PREGUICOSO] = 1
-semelhantes[Caracteristicas.ARROGANTE][Caracteristicas.PAVIOCURTO] = 1
-semelhantes[Caracteristicas.AMIGAVEL][Caracteristicas.PACIENTE] = 1
-semelhantes[Caracteristicas.PROATIVO][Caracteristicas.COMPETITIVO] = 1
+# Lista de pares de caracteristicas semelhantes
+pares_semelhantes = [
+    (Caracteristicas.INTELIGENTE, Caracteristicas.PROATIVO),
+    (Caracteristicas.COMPETITIVO, Caracteristicas.PAVIOCURTO),
+    (Caracteristicas.AMIGAVEL, Caracteristicas.TAGARELA),
+    (Caracteristicas.PACIENTE, Caracteristicas.INTELIGENTE),
+    (Caracteristicas.TIMIDO, Caracteristicas.PREGUICOSO),
+    (Caracteristicas.ARROGANTE, Caracteristicas.PAVIOCURTO),
+    (Caracteristicas.AMIGAVEL, Caracteristicas.PACIENTE),
+    (Caracteristicas.PROATIVO, Caracteristicas.COMPETITIVO),
+]
 
-semelhantes[Caracteristicas.PROATIVO][Caracteristicas.INTELIGENTE] = 1
-semelhantes[Caracteristicas.PAVIOCURTO][Caracteristicas.COMPETITIVO] = 1
-semelhantes[Caracteristicas.TAGARELA][Caracteristicas.AMIGAVEL] = 1
-semelhantes[Caracteristicas.INTELIGENTE][Caracteristicas.PACIENTE] = 1
-semelhantes[Caracteristicas.PREGUICOSO][Caracteristicas.TIMIDO] = 1
-semelhantes[Caracteristicas.PAVIOCURTO][Caracteristicas.ARROGANTE] = 1
-semelhantes[Caracteristicas.PACIENTE][Caracteristicas.AMIGAVEL] = 1
-semelhantes[Caracteristicas.COMPETITIVO][Caracteristicas.PROATIVO] = 1
+# Preenche a matriz de adjacência de forma bidirecional
+for c1, c2 in pares_semelhantes:
+    semelhantes[c1][c2] = 1
+    semelhantes[c2][c1] = 1
