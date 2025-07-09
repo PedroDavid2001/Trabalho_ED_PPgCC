@@ -20,16 +20,15 @@ class Caracteristicas(Enum):
 
 # Para evitar que as caracteristicas sejam 
 # distribuidas aleatoriamente, sera utilizada 
-# uma matriz de adjacencia para interligar 
+# uma matriz de adjacencia (grafo) para interligar 
 # caracteristicas que possuam alguma semelhanca.
 
-semelhantes = []
+semelhantes = {}
 
 for c1 in Caracteristicas:
-    linha = []
+    semelhantes[c1] = {}
     for c2 in Caracteristicas:
-        linha.append(0)
-    semelhantes.append(linha)
+        semelhantes[c1][c2] = 0
 
 # Agora basta preencher os indices que tem relacao com 1.
 # E possivel acessa-los com os valores dos proprios itens da enum.
@@ -44,3 +43,12 @@ semelhantes[Caracteristicas.TIMIDO][Caracteristicas.PREGUICOSO] = 1
 semelhantes[Caracteristicas.ARROGANTE][Caracteristicas.PAVIOCURTO] = 1
 semelhantes[Caracteristicas.AMIGAVEL][Caracteristicas.PACIENTE] = 1
 semelhantes[Caracteristicas.PROATIVO][Caracteristicas.COMPETITIVO] = 1
+
+semelhantes[Caracteristicas.PROATIVO][Caracteristicas.INTELIGENTE] = 1
+semelhantes[Caracteristicas.PAVIOCURTO][Caracteristicas.COMPETITIVO] = 1
+semelhantes[Caracteristicas.TAGARELA][Caracteristicas.AMIGAVEL] = 1
+semelhantes[Caracteristicas.INTELIGENTE][Caracteristicas.PACIENTE] = 1
+semelhantes[Caracteristicas.PREGUICOSO][Caracteristicas.TIMIDO] = 1
+semelhantes[Caracteristicas.PAVIOCURTO][Caracteristicas.ARROGANTE] = 1
+semelhantes[Caracteristicas.PACIENTE][Caracteristicas.AMIGAVEL] = 1
+semelhantes[Caracteristicas.COMPETITIVO][Caracteristicas.PROATIVO] = 1

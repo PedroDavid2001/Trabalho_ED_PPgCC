@@ -13,17 +13,106 @@
 # > gosta (caracteristicas que ele gosta em outra pessoa) -> int[]
 # > detesta (caracteristicas que ele NAO gosta em outra pessoa) -> int[]
 
+from caracteristica import semelhantes
+from caracteristica import Caracteristicas
+import humor
+import random as rd
+
 class Participante():
-    def __init__(self, nome : str, 
-                 humor : str, 
-                 caracteristicas : list[int], 
-                 aptidao_fisica : int, 
-                 gosta : list[int], 
-                 detesta : list[int]):
+    def __init__(self, nome : str, gosta : list, detesta : list):
         self.nome = nome
-        self.humor = humor
-        self.caracteristicas = caracteristicas
-        self.aptidao_fisica = aptidao_fisica
+        self.caracteristicas : list = selecionar_caracteristicas()
         self.gosta = gosta
         self.detesta = detesta
+        
+        self.aptidao_fisica : int = definir_aptidao_fisica(self.caracteristicas)
+        self.humor : str = definir_humor_inicial(self.caracteristicas)
+        
         return
+    
+    # funciona como um setter de humor
+    def humor_atual(self, humor : str):
+        self.humor = humor
+    
+# Neste arquivo tambem implementei um metodo para gerar participantes
+def gerar_participante(nome : str) -> Participante:
+    gosta = []
+    detesta = []
+    
+    # Seleciona aleatoriamente as caracteristicas 
+    # que o participante gosta e detesta.
+    for c in Caracteristicas:
+        vai_gostar = rd.randint(0, 1)
+        if vai_gostar == 1:
+            gosta.append(c)
+        else:
+            detesta.append(c)
+    
+    return Participante(nome, gosta, detesta)
+
+# Metodo que retorna uma lista com caracteristicas aleatorias
+def selecionar_caracteristicas() -> list:
+    caracteristicas = []
+    
+    # Primeira caracteristica a ser adicionada. A partir 
+    # dela sao selecionadas as que possuem relacao na 
+    # matriz de adjacencia "semelhantes". Selecionado 
+    # um numero aleatorio entre 0 e o ultimo indice da 
+    # enum "Caracteristicas". 
+    primeira_caracteristica = rd.choice(list(Caracteristicas))
+    caracteristicas.append(primeira_caracteristica)
+    
+    # Agora na linha da primeira caracteristica sao 
+    # selecionadas outras caracteristica que possuam 
+    # relacao com ela.
+    for c in semelhantes[primeira_caracteristica]:
+        if semelhantes[primeira_caracteristica][c] == 1:
+            # Como o objetivo de tornar ainda mais 
+            # aleatoria a geracao de caracteristicas 
+            # adicionei um "cara ou coroa" para decidir 
+            # se adiciona ou nao a caracteristica relacionada.
+            deve_selecionar = rd.randint(0, 1)
+            if deve_selecionar == 1:
+                caracteristicas.append(c)
+    
+    return caracteristicas
+
+def definir_humor_inicial(caracteristicas = []) -> str:
+    for c in caracteristicas:
+        if c == Caracteristicas.PREGUICOSO:
+            return humor.CANSADO
+        elif c == Caracteristicas.AMIGAVEL or c == Caracteristicas.TAGARELA:
+            return humor.ALEGRE
+        elif c == Caracteristicas.TIMIDO:
+            return humor.TRISTE
+    return humor.NEUTRO
+
+def definir_aptidao_fisica(caracteristicas = []) -> int:
+    # Gera um valora aleatorio entre 50 e 100 
+    # para nao iniciar com um valor muito baixo
+    apt : int = rd.randint(50, 100)
+    
+    # Reduz a aptidao fisica de participantes preguicosos
+    for c in caracteristicas:
+        if c == Caracteristicas.PREGUICOSO:
+            apt -= 30
+        
+    return apt
+
+# trecho usado para testar os metodos
+# p1 = gerar_participante('Pedro')
+# p2 = gerar_participante('Paulo')
+
+# print("Participante 1: ", p1.nome) 
+# print("aptidao fisica: " , p1.aptidao_fisica)
+# print("caracteristicas: " , p1.caracteristicas)
+# print("gosta de: " , p1.gosta)
+# print("não gosta de: " , p1.detesta)
+# print("está se sentindo: " , p1.humor)
+
+# print("Participante 2: " , p2.nome) 
+# print("aptidao fisica: " , p2.aptidao_fisica)
+# print("caracteristicas: " , p2.caracteristicas)
+# print("gosta de: " , p2.gosta)
+# print("não gosta de: " , p2.detesta)
+# print("está se sentindo: " , p2.humor)
