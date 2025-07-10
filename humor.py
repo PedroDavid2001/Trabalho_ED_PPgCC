@@ -6,6 +6,7 @@
 # acessar mais facilmente os valores.
 
 class Humor:
+    """Define as constantes de humor dos participantes."""
     ALEGRE = "😀 ALEGRE"
     IRRITADO = "😠 IRRITADO"
     CANSADO = "😴 CANSADO"

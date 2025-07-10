@@ -1,12 +1,9 @@
-# Lista de constantes que representam as possiveis opcoes
-# de caracteristicas para cada participante.
-
-# Optei por criar essas variaveis para
-# acessar mais facilmente os valores.
 from enum import Enum
 
 
 class Caracteristicas(Enum):
+    """Enumeração das possíveis características dos participantes."""
+
     INTELIGENTE = 0
     PROATIVO = 1
     AMIGAVEL = 2

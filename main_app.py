@@ -1,12 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import random
-import math
 
 from caracteristica import Caracteristicas
-from participante import gerar_participante, Participante
+from participante import Participante
 from evento import Evento
-from relacoes import MatrizRelacoes
 
 
 class RealityShowApp:
@@ -21,34 +19,27 @@ class RealityShowApp:
         self.secondary_color = "#33B633" # Verde claro
         self.accent_color = "#FFC107"   # Amarelo para destaque
         self.text_color = "#FFFFFF"     # Texto branco
-        self.bg_color = "#FFFFFF"       # Fundo levemente verde
-        self.frame_bg = "#FFFFFF"       # Fundo dos frames
+        self.bg_color = "#DCDAD5"       # Fundo levemente verde
+        self.frame_bg = "#DCDAD5"       # Fundo dos frames
 
         master.configure(bg=self.bg_color)
 
         # Estilos ttk
         style = ttk.Style()
-        style.theme_use('clam')
-        style.configure(
-            'TFrame')
-        style.configure(
-            'TLabelFrame', font=('Arial', 10, 'bold'))
-        style.configure(
-            'TLabel', font=('Arial', 10))
-        style.configure(
-            'TButton', background=self.primary_color, foreground=self.text_color, font=('Arial', 10, 'bold'), relief='flat')
-        style.map(
-            'TButton', background=[('active', self.secondary_color)])
-        style.configure(
-            'TEntry', fieldbackground='white', foreground='#333333')
-        style.configure(
-            'TText', fieldbackground='white', foreground='#333333')
+        style.theme_use('alt')
+        style.configure('TFrame', background=self.frame_bg)
+        style.configure('TLabelFrame', background=self.frame_bg, foreground='#333333', font=('Arial', 10, 'bold'))
+        style.configure('TLabel', background=self.frame_bg, foreground='#333333', font=('Arial', 10))
+        style.configure('TButton', background=self.primary_color, foreground=self.text_color, font=('Arial', 10, 'bold'), relief='flat')
+        style.map('TButton', background=[('active', self.secondary_color)])
+        style.configure('TEntry', fieldbackground='white', foreground='#333333')
+        style.configure('TText', fieldbackground='white', foreground='#333333')
 
         self.participantes: list[Participante] = []
         self.dias_simulacao = int(0)
         self.dia_atual = int(0)
 
-        # --- Frame de Configuração (continua usando pack na parte superior) ---
+        # --- Frame de Configuração ---
         self.config_frame = ttk.LabelFrame(master, text="Configuração da Simulação")
         self.config_frame.pack(padx=15, pady=15, fill="x")
 
@@ -68,11 +59,11 @@ class RealityShowApp:
 
         self.iniciar_button = ttk.Button(
             self.config_frame, text="Iniciar Simulação", command=self.iniciar_simulacao)
-        self.iniciar_button.grid(row=2, column=0, columnspan=2, pady=10)
-        
+        self.iniciar_button.grid(row=2, column=0, pady=10, padx=5, sticky="ew")
+
         self.passar_dia_button = ttk.Button(
             self.config_frame, text="Próximo Dia", command=self.simular_proximo_dia)
-        self.passar_dia_button.grid(row=2, column=1, columnspan=2, pady=10)
+        self.passar_dia_button.grid(row=2, column=1, pady=10, padx=5, sticky="ew")
         self.passar_dia_button.config(state="disabled")
         
         # Configurar expansão de coluna para as entradas
@@ -87,7 +78,7 @@ class RealityShowApp:
         self.status_frame.pack(padx=0, pady=0, fill="x", anchor="n")
 
         self.dia_label = ttk.Label(self.status_frame, text="Dia: 0/0")
-        self.dia_label.pack(pady=5)
+        self.dia_label.pack(padx=0, pady=0)
 
         self.participantes_label = ttk.Label(self.status_frame, text="Participantes Atuais: 0")
         self.participantes_label.pack(pady=5)
@@ -109,14 +100,15 @@ class RealityShowApp:
         self.log_frame = ttk.LabelFrame(master, text="Log de Eventos")
         self.log_frame.pack(side="right", padx=15, pady=10, fill="both", expand=True)
 
-        self.log_text = tk.Text(self.log_frame, height=20, width=60, state="disabled", wrap="word")
+        self.log_text = tk.Text(
+            self.log_frame, height=20, width=60, state="disabled", wrap="word")
         self.log_text.pack(padx=5, pady=5, fill="both", expand=True)
         self.log_text_scroll = ttk.Scrollbar(self.log_frame, command=self.log_text.yview)
         self.log_text_scroll.pack(side="right", fill="y")
         self.log_text.config(yscrollcommand=self.log_text_scroll.set)
 
 
-    def log_evento(self, message, color="black"):
+    def log_evento(self, message: str, color="black"):
         """Adiciona uma mensagem ao log de eventos na interface com uma cor opcional."""
         self.log_text.config(state="normal")
         self.log_text.tag_configure("color", foreground=color)
@@ -133,17 +125,19 @@ class RealityShowApp:
             self.participants_list_text.insert(tk.END, "Nenhum participante na casa.")
         else:
             for p in self.participantes:
-                # Mostrar as características também, para uma visão mais completa
                 char_names = [c.name for c in p.caracteristicas]
                 self.participants_list_text.insert(tk.END,
                     f"- {p.nome}\n"
-                    f"  Aptidão Física: {p.aptidao_fisica}, Raciocínio Lógico: {p.raciocinio_logico}, Humor: {p.humor}\n"
+                    f"  Aptidão Física: {p.aptidao_fisica},\n"
+                    f"  Raciocínio Lógico: {p.raciocinio_logico},\n"
+                    f"  Humor: {p.humor}\n"
                     f"  Características: {', '.join(char_names)}\n\n"
                 )
         self.participants_list_text.config(state="disabled")
 
 
     def iniciar_simulacao(self):
+        """Inicia uma nova simulação do reality show."""
         nomes_str = self.nomes_participantes_text.get(1.0, tk.END).strip()
         if not nomes_str:
             messagebox.showerror(
@@ -170,9 +164,8 @@ class RealityShowApp:
             self.log_text.delete(1.0, tk.END)
             self.log_text.config(state="disabled")
 
-            # Reseta a lista de participantes se alguem tiver vencido na ultima simulação
-            if len(self.participantes) <= 1:
-                self.participantes = [gerar_participante(nome) for nome in nomes]
+            # Reseta a lista de participantes e gera novos
+            self.participantes = [Participante.gerar_participante(nome) for nome in nomes]
 
             self.log_evento(
                 f"Iniciando simulação com {len(self.participantes)} participantes por {duracao} dias.",
@@ -191,10 +184,16 @@ class RealityShowApp:
                 gosta_names = [c.name for c in p.gosta]
                 detesta_names = [c.name for c in p.detesta]
 
-                self.log_evento(f"- {p.nome} (Aptidão Física: {p.aptidao_fisica}, Raciocínio Lógico: {p.raciocinio_logico}, Humor: {p.humor})")
-                self.log_evento(f"  Caracteristicas: {', '.join(char_names)}")
-                self.log_evento(f"  Gosta: {', '.join(gosta_names) if gosta_names else 'Nenhum'}")
-                self.log_evento(f"  Detesta: {', '.join(detesta_names) if detesta_names else 'Nenhum'}\n")
+                self.log_evento(
+                    f"- {p.nome} (Aptidão Física: {p.aptidao_fisica}, "
+                    f"Raciocínio Lógico: {p.raciocinio_logico}, "
+                    f"Humor: {p.humor})")
+                self.log_evento(
+                    f"  Caracteristicas: {', '.join(char_names)}")
+                self.log_evento(
+                    f"  Gosta: {', '.join(gosta_names) if gosta_names else 'Nenhum'}")
+                self.log_evento(
+                    f"  Detesta: {', '.join(detesta_names) if detesta_names else 'Nenhum'}\n")
 
             self.iniciar_button.config(state="disabled")
             self.passar_dia_button.config(state="normal")
@@ -208,70 +207,80 @@ class RealityShowApp:
 
 
     def simular_proximo_dia(self):
+        """Simula o próximo dia da casa, incluindo eventos e atualizações de status."""
         self.passar_dia_button.config(state="disabled")
         if self.dia_atual < self.dias_simulacao and len(self.participantes) > 1:
             self.dia_atual += 1
             self.dia_label.config(text=f"Dia: {self.dia_atual}/{self.dias_simulacao}")
-            self.log_evento(f"\n--- Dia {self.dia_atual} ---", color=self.secondary_color)
+            self.log_evento(
+                f"\n--- Dia {self.dia_atual} ---", color=self.secondary_color)
+
+            # Instancia um objeto Evento para o dia atual
+            current_event = Evento("Evento do Dia", "Um evento aleatório acontece na casa.")
 
             # Eventos ocorrem aleatoriamente para maior dinamismo
-            event_type = random.choice(["physical", "logical", "social", "voting", "nothing"])
+            # Ajustei as probabilidades para o paredão ocorrer mais raramente
+            event_type = random.choices(
+                ["physical", "logical", "social", "voting", "nothing"],
+                weights=[0.2, 0.2, 0.3, 0.1, 0.2], # 20% físico, 20% lógico, 30% social, 10% paredão, 20% nada
+                k=1
+            )[0]
 
-            if event_type == "physical" and self.dia_atual >= 1: # Evento físico pode ocorrer a partir do dia 1
-                evento_fisico = Evento("Prova de Aptidão Física", "Teste de resistência física extremo!")
-                
-                self.log_evento(
-                    f"--- Evento: {evento_fisico.nome} ---", color="red"
-                )
-                
-                self.log_evento(
-                    f"Descrição: {evento_fisico.descricao}", color="red"
-                )
-                
-                num_antes = len(self.participantes)
-                self.participantes, eliminado = evento_fisico.eliminar_participante(self.participantes)
+            eliminado: Participante | None = None
 
-                if len(self.participantes) < num_antes:
+            if event_type == "physical":
+                self.log_evento(
+                    f"--- Evento: Prova de Aptidão Física ---", color="red")
+                self.log_evento(
+                    f"Descrição: Teste de resistência física extremo!", color="red")
+                self.participantes, eliminado = current_event.eliminar_participante(self.participantes, tipo_teste="fisico")
+
+                if eliminado:
                     self.log_evento(
-                        f"Participante eliminado por menor aptidão física: {eliminado.nome} (Aptidão: {eliminado.aptidao_fisica})",
+                        f"Participante eliminado por menor aptidão física:\n"
+                        f"- {eliminado.nome} (Aptidão: {eliminado.aptidao_fisica})",
                         color="red")
                 else:
                     self.log_evento(
                         "Ninguém foi eliminado nesta prova física.",
                         color="green")
             
-            elif event_type == "logical" and self.dia_atual >= 1: # Evento de raciocio logico pode ocorrer a partir do dia 1
-                evento_raciocinio = Evento("Prova de Raciocínio Lógico", "Teste de conhecimentos gerais e raciocínio lógico!", False)
-                
+            elif event_type == "logical":
                 self.log_evento(
-                    f"--- Evento: {evento_raciocinio.nome} ---", color="red"
-                )
-                
+                    f"--- Evento: Prova de Raciocínio Lógico ---",
+                    color="red")
                 self.log_evento(
-                    f"Descrição: {evento_raciocinio.descricao}", color="red"
-                )
-                
-                num_antes = len(self.participantes)
-                self.participantes, eliminado = evento_raciocinio.eliminar_participante(self.participantes)
+                    f"Descrição: Teste de conhecimentos gerais e raciocínio lógico!",
+                    color="red")
 
-                if len(self.participantes) < num_antes:
+                self.participantes, eliminado = current_event.eliminar_participante(self.participantes, tipo_teste="logico")
+                if eliminado:
                     self.log_evento(
-                        f"Participante eliminado por menor raciocínio lógico: {eliminado.nome} (Raciocínio: {eliminado.raciocinio_logico})",
-                        color="red")
+                        f"Participante eliminado por menor raciocínio lógico:\n"
+                        f"- {eliminado.nome} (Raciocínio: {eliminado.raciocinio_logico})", color="red")
                 else:
                     self.log_evento(
                         "Ninguém foi eliminado nesta prova de raciocínio.",
                         color="green")
             
-            elif event_type == "social" and self.dia_atual >= 1: # Evento social pode ocorrer a partir do dia 1
+            elif event_type == "social":
                 self.log_evento(
-                    "Evento: Interação Social na Casa!", color="blue")
-                self.evento_social()
-                
-            elif event_type == "voting" and self.dia_atual >= 1:
+                    "--- Evento: Interação Social na Casa! ---", color="blue")
+
+                current_event.evento_social(self.participantes) # Chama o método da instância de Evento
                 self.log_evento(
-                    "Será realizado o Paredão!", color="red")
-                self.paredao()
+                    "O clima na casa mudou após interações sociais.", color="blue")
+            
+            elif event_type == "voting":
+                self.log_evento("--- Será realizado o Paredão! ---", color="red")
+                self.participantes, eliminado = current_event.paredao(self.participantes) # Chama o método da instância de Evento
+                if eliminado:
+                    self.log_evento(
+                        f"Infelizmente {eliminado.nome} foi eliminado(a) nesse paredão.",
+                        color="red")
+                else:
+                    self.log_evento(
+                        "O paredão não resultou em eliminação.", color="orange")
                 
             else:
                 self.log_evento(
@@ -288,10 +297,11 @@ class RealityShowApp:
                 self.log_evento(
                     f"\nFim da simulação: O vencedor é {self.participantes[0].nome}!", color="green")
             else:
-                self.passar_dia_button.config(state="normal")
+                self.passar_dia_button.config(state="normal") # Habilita o botão para o próximo dia
 
         else:
             self.log_evento("\nSimulação Concluída.", color=self.primary_color)
+
             if len(self.participantes) > 0:
                 self.log_evento(
                     f"Participantes restantes: {[p.nome for p in self.participantes]}", color="green")
@@ -302,86 +312,7 @@ class RealityShowApp:
             self.iniciar_button.config(state="normal")
             self.nomes_participantes_text.config(state="normal")
             self.duracao_dias_entry.config(state="normal")
-
-    
-    def paredao(self):
-        votos_em_cada_participante = [0] * len(self.participantes)
-        matriz_rel = MatrizRelacoes(self.participantes)
-        
-        for p1 in self.participantes:
-            menor_relacao = math.inf
-            participante_votado : int
-            # Busca o participante com menor relacao
-            indice = 0
-            for p2 in self.participantes:
-                if matriz_rel.relacoes[p1.nome][p2.nome] < menor_relacao:
-                    menor_relacao = matriz_rel.relacoes[p1.nome][p2.nome]
-                    participante_votado = indice
-                indice += 1
-        
-            # realiza a votacao
-            votos_em_cada_participante[participante_votado] += 1
-        
-        # elimina o que possui o maior numero de votos
-        maior_voto = -math.inf
-        indice_mais_votado : int
-        for i in range(len(self.participantes)):
-            if votos_em_cada_participante[i] > maior_voto:
-                maior_voto = votos_em_cada_participante[i]
-                indice_mais_votado = i
-        
-        self.log_evento('--- Resultados do Paredão ---', color="red")
-        for j in range(len(self.participantes)):
-            self.log_evento(f'Participante {self.participantes[j].nome} recebeu {votos_em_cada_participante[j]} votos.', color="red") 
-        self.log_evento("-" * 20, color="red")
-        self.log_evento(
-            f'Infelizmente {self.participantes[indice_mais_votado].nome} com {votos_em_cada_participante[indice_mais_votado]} votos foi eliminado(a) nesse paredão.' 
-            , color="red"
-        )   
-        self.participantes = [
-            self.participantes[k] for k in range(len(self.participantes)) if k != indice_mais_votado
-        ]
-        
-    def evento_social(self):
-        """Simula um evento social que pode mudar o humor dos participantes."""
-        from caracteristica import Caracteristicas
-        from humor import Humor
-
-        if not self.participantes:
-            return
-
-        # Para tornar o evento social mais interessante, vamos focar em dois participantes
-        if len(self.participantes) < 2:
-            self.log_evento(
-                "Não há participantes suficientes para um evento social complexo.",
-                color="orange"
-            )
-            return
-
-        p1, p2 = random.sample(self.participantes, 2)
-        
-        self.log_evento(f"Houve uma interação social entre {p1.nome} e {p2.nome}.", color="blue")
-
-        # Exemplo de interação: se um é tagarela e o outro tímido, o tímido pode ficar irritado ou triste
-        if Caracteristicas.TAGARELA in p1.caracteristicas and Caracteristicas.TIMIDO in p2.caracteristicas:
-            p2.humor_atual(Humor.IRRITADO)
-            self.log_evento(
-                f"- {p2.nome} (tímido) ficou IRRITADO com a tagarelice de {p1.nome}.", color="purple")
-
-        elif Caracteristicas.AMIGAVEL in p1.caracteristicas and p2.humor == Humor.TRISTE:
-            p2.humor_atual(Humor.NEUTRO)
-            self.log_evento(
-                f"- {p1.nome} (amigável) ajudou {p2.nome} a se sentir NEUTRO novamente.", color="green")
-
-        else:
-            # Caso geral: humor aleatório para alguns
-            for p in random.sample(self.participantes, k=min(len(self.participantes), 3)): # Afeta até 3 participantes
-                old_humor = p.humor
-                possible_humors = [Humor.ALEGRE, Humor.IRRITADO, Humor.CANSADO, Humor.TRISTE, Humor.NEUTRO]
-                new_humor = random.choice([h for h in possible_humors if h != old_humor])
-                p.humor_atual(new_humor)
-                self.log_evento(
-                    f"- O humor de {p.nome} mudou de {old_humor} para {new_humor}.", color="darkblue")
+            self.passar_dia_button.config(state="disabled") # Desabilita ao final da simulação
 
 
 if __name__ == "__main__":
