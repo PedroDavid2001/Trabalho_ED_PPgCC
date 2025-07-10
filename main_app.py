@@ -170,14 +170,14 @@ class RealityShowApp:
             self.log_text.delete(1.0, tk.END)
             self.log_text.config(state="disabled")
 
-            self.log_evento(
-                f"Iniciando simulação com {len(nomes)} participantes por {duracao} dias.",
-                color=self.primary_color)
-            
             # Reseta a lista de participantes se alguem tiver vencido na ultima simulação
             if len(self.participantes) <= 1:
                 self.participantes = [gerar_participante(nome) for nome in nomes]
-                
+
+            self.log_evento(
+                f"Iniciando simulação com {len(self.participantes)} participantes por {duracao} dias.",
+                color=self.primary_color)
+            
             self.dias_simulacao = duracao
             self.dia_atual = 0
 
