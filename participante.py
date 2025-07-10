@@ -1,13 +1,15 @@
 # Classe que representa um participante do reality show.
 # Cada participante tem nome, humor, caracteristicas proprias,
-# aptidao fisica e uma lista de caracteristicas que ele gosta
-# em outra pessoa e outra com as que ele não gosta.
+# aptidao fisica, raciocinio logico e uma lista de 
+# caracteristicas que ele gosta em outra pessoa e outra com 
+# as que ele não gosta.
 
 # Para a classe serao utilizados os seguintes atributos:
 # > nome -> string
 # > humor (como o participante está se sentindo) -> string
 # > caracteristicas (definem a personalidade do participante) -> int[]
 # > aptidao fisica (resistencia em provas fisicas) -> int (Vai de 0 a 100)
+# > raciocinio logico (necessario em provas de conhecimento) -> int (Vai de 0 a 100)
 # > gosta (caracteristicas que ele gosta em outra pessoa) -> int[]
 # > detesta (caracteristicas que ele NAO gosta em outra pessoa) -> int[]
 
@@ -26,8 +28,9 @@ class Participante:
         self.detesta = detesta
 
         self.aptidao_fisica: int = definir_aptidao_fisica(self.caracteristicas)
+        self.raciocinio_logico: int = definir_raciocinio_logico(self.caracteristicas)
         self.humor = definir_humor_inicial(self.caracteristicas)
-
+        
         return
 
     # funciona como um setter de humor
@@ -94,3 +97,14 @@ def definir_aptidao_fisica(caracteristicas=[]) -> int:
         apt -= 30
 
     return apt
+
+def definir_raciocinio_logico(caracteristicas=[]) -> int:
+    # Gera um valora aleatorio entre 50 e 100
+    # para nao iniciar com um valor muito baixo
+    rac = rd.randint(50, 100)
+
+    # Reduz a aptidao fisica de participantes preguicosos
+    if Caracteristicas.INTELIGENTE in caracteristicas:
+        rac += 30
+
+    return min(rac, 100)

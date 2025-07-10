@@ -8,8 +8,7 @@ from participante import gerar_participante
 class MatrizRelacoes:
     def __init__(self, lista_participantes: list[Participante]):
         self.relacoes = gerar_matriz(lista_participantes)
-
-
+            
 def gerar_matriz(participantes: list[Participante]) -> dict:
     matriz = {}
 
@@ -19,7 +18,6 @@ def gerar_matriz(participantes: list[Participante]) -> dict:
             matriz[p1.nome][p2.nome] = nivel_de_relacao(p1, p2)
 
     return matriz
-
 
 def nivel_de_relacao(p1: Participante, p2: Participante) -> int:
     relacao: int = 0

@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import random
+import math
 
 from caracteristica import Caracteristicas
 from participante import gerar_participante, Participante
@@ -56,7 +57,7 @@ class RealityShowApp:
                 row=0, column=0, padx=5, pady=5, sticky="nw")
         self.nomes_participantes_text = tk.Text(self.config_frame, height=8, width=30, wrap="word")
         self.nomes_participantes_text.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-        self.nomes_participantes_text.insert(tk.END, "Alice\nBob\nCharlie\nDiana\nEduardo")
+        self.nomes_participantes_text.insert(tk.END, "Alice\nRoberto\nCézar\nDiana\nEduardo\nPedro\nPaulo\nMaria\nMelissa\nAntonio\nCarlos\nAndré\nLuiza\nAndreza\nJulimar\nJoão\nLucas\nGian\nNeide\nLeandro")
 
         ttk.Label(
             self.config_frame, text="Duração (dias):").grid(
@@ -68,6 +69,11 @@ class RealityShowApp:
         self.iniciar_button = ttk.Button(
             self.config_frame, text="Iniciar Simulação", command=self.iniciar_simulacao)
         self.iniciar_button.grid(row=2, column=0, columnspan=2, pady=10)
+        
+        self.passar_dia_button = ttk.Button(
+            self.config_frame, text="Próximo Dia", command=self.simular_proximo_dia)
+        self.passar_dia_button.grid(row=2, column=1, columnspan=2, pady=10)
+        self.passar_dia_button.config(state="disabled")
         
         # Configurar expansão de coluna para as entradas
         self.config_frame.grid_columnconfigure(1, weight=1)
@@ -131,7 +137,7 @@ class RealityShowApp:
                 char_names = [c.name for c in p.caracteristicas]
                 self.participants_list_text.insert(tk.END,
                     f"- {p.nome}\n"
-                    f"  Aptidão: {p.aptidao_fisica}, Humor: {p.humor}\n"
+                    f"  Aptidão Física: {p.aptidao_fisica}, Raciocínio Lógico: {p.raciocinio_logico}, Humor: {p.humor}\n"
                     f"  Características: {', '.join(char_names)}\n\n"
                 )
         self.participants_list_text.config(state="disabled")
@@ -167,7 +173,11 @@ class RealityShowApp:
             self.log_evento(
                 f"Iniciando simulação com {len(nomes)} participantes por {duracao} dias.",
                 color=self.primary_color)
-            self.participantes = [gerar_participante(nome) for nome in nomes]
+            
+            # Reseta a lista de participantes se alguem tiver vencido na ultima simulação
+            if len(self.participantes) <= 1:
+                self.participantes = [gerar_participante(nome) for nome in nomes]
+                
             self.dias_simulacao = duracao
             self.dia_atual = 0
 
@@ -181,16 +191,15 @@ class RealityShowApp:
                 gosta_names = [c.name for c in p.gosta]
                 detesta_names = [c.name for c in p.detesta]
 
-                self.log_evento(f"- {p.nome} (Apt: {p.aptidao_fisica}, Humor: {p.humor})")
+                self.log_evento(f"- {p.nome} (Aptidão Física: {p.aptidao_fisica}, Raciocínio Lógico: {p.raciocinio_logico}, Humor: {p.humor})")
                 self.log_evento(f"  Caracteristicas: {', '.join(char_names)}")
                 self.log_evento(f"  Gosta: {', '.join(gosta_names) if gosta_names else 'Nenhum'}")
                 self.log_evento(f"  Detesta: {', '.join(detesta_names) if detesta_names else 'Nenhum'}\n")
 
             self.iniciar_button.config(state="disabled")
+            self.passar_dia_button.config(state="normal")
             self.nomes_participantes_text.config(state="disabled")
             self.duracao_dias_entry.config(state="disabled")
-
-            self.master.after(700, self.simular_proximo_dia)
 
         except ValueError:
             messagebox.showerror(
@@ -199,40 +208,74 @@ class RealityShowApp:
 
 
     def simular_proximo_dia(self):
+        self.passar_dia_button.config(state="disabled")
         if self.dia_atual < self.dias_simulacao and len(self.participantes) > 1:
             self.dia_atual += 1
             self.dia_label.config(text=f"Dia: {self.dia_atual}/{self.dias_simulacao}")
             self.log_evento(f"\n--- Dia {self.dia_atual} ---", color=self.secondary_color)
 
             # Eventos ocorrem aleatoriamente para maior dinamismo
-            event_type = random.choice(["physical", "social", "nothing"])
+            event_type = random.choice(["physical", "logical", "social", "voting", "nothing"])
 
             if event_type == "physical" and self.dia_atual >= 1: # Evento físico pode ocorrer a partir do dia 1
-                self.log_evento(
-                    "Evento: Prova de Aptidão Física!", color="red")
-
                 evento_fisico = Evento("Prova de Aptidão Física", "Teste de resistência física extremo!")
+                
+                self.log_evento(
+                    f"--- Evento: {evento_fisico.nome} ---", color="red"
+                )
+                
+                self.log_evento(
+                    f"Descrição: {evento_fisico.descricao}", color="red"
+                )
+                
                 num_antes = len(self.participantes)
-                self.participantes = evento_fisico.eliminar_por_aptidao_fisica(self.participantes)
+                self.participantes, eliminado = evento_fisico.eliminar_participante(self.participantes)
 
                 if len(self.participantes) < num_antes:
                     self.log_evento(
-                        "Um participante foi eliminado na prova física.",
+                        f"Participante eliminado por menor aptidão física: {eliminado.nome} (Aptidão: {eliminado.aptidao_fisica})",
                         color="red")
                 else:
                     self.log_evento(
-                        "Ninguém foi eliminado nesta prova física (pode ocorrer se aptidão for igual).",
+                        "Ninguém foi eliminado nesta prova física.",
+                        color="green")
+            
+            elif event_type == "logical" and self.dia_atual >= 1: # Evento de raciocio logico pode ocorrer a partir do dia 1
+                evento_raciocinio = Evento("Prova de Raciocínio Lógico", "Teste de conhecimentos gerais e raciocínio lógico!", False)
+                
+                self.log_evento(
+                    f"--- Evento: {evento_raciocinio.nome} ---", color="red"
+                )
+                
+                self.log_evento(
+                    f"Descrição: {evento_raciocinio.descricao}", color="red"
+                )
+                
+                num_antes = len(self.participantes)
+                self.participantes, eliminado = evento_raciocinio.eliminar_participante(self.participantes)
+
+                if len(self.participantes) < num_antes:
+                    self.log_evento(
+                        f"Participante eliminado por menor raciocínio lógico: {eliminado.nome} (Raciocínio: {eliminado.raciocinio_logico})",
+                        color="red")
+                else:
+                    self.log_evento(
+                        "Ninguém foi eliminado nesta prova de raciocínio.",
                         color="green")
             
             elif event_type == "social" and self.dia_atual >= 1: # Evento social pode ocorrer a partir do dia 1
                 self.log_evento(
                     "Evento: Interação Social na Casa!", color="blue")
                 self.evento_social()
+                
+            elif event_type == "voting" and self.dia_atual >= 1:
+                self.log_evento(
+                    "Será realizado o Paredão!", color="red")
+                self.paredao()
+                
             else:
                 self.log_evento(
                     "Dia tranquilo na casa. Sem grandes eventos hoje.", color="gray")
-
-            # TODO: Adicionar o evento de paredão aqui quando a lógica estiver pronta.
 
             self.participantes_label.config(
                 text=f"Participantes Atuais: {len(self.participantes)}")
@@ -241,13 +284,11 @@ class RealityShowApp:
             if len(self.participantes) == 0:
                 self.log_evento(
                     "\nFim da simulação: Todos os participantes foram eliminados!", color="red")
-
             elif len(self.participantes) == 1:
                 self.log_evento(
                     f"\nFim da simulação: O vencedor é {self.participantes[0].nome}!", color="green")
-
             else:
-                self.master.after(1000, self.simular_proximo_dia)
+                self.passar_dia_button.config(state="normal")
 
         else:
             self.log_evento("\nSimulação Concluída.", color=self.primary_color)
@@ -262,7 +303,45 @@ class RealityShowApp:
             self.nomes_participantes_text.config(state="normal")
             self.duracao_dias_entry.config(state="normal")
 
-
+    
+    def paredao(self):
+        votos_em_cada_participante = [0] * len(self.participantes)
+        matriz_rel = MatrizRelacoes(self.participantes)
+        
+        for p1 in self.participantes:
+            menor_relacao = math.inf
+            participante_votado : int
+            # Busca o participante com menor relacao
+            indice = 0
+            for p2 in self.participantes:
+                if matriz_rel.relacoes[p1.nome][p2.nome] < menor_relacao:
+                    menor_relacao = matriz_rel.relacoes[p1.nome][p2.nome]
+                    participante_votado = indice
+                indice += 1
+        
+            # realiza a votacao
+            votos_em_cada_participante[participante_votado] += 1
+        
+        # elimina o que possui o maior numero de votos
+        maior_voto = -math.inf
+        indice_mais_votado : int
+        for i in range(len(self.participantes)):
+            if votos_em_cada_participante[i] > maior_voto:
+                maior_voto = votos_em_cada_participante[i]
+                indice_mais_votado = i
+        
+        self.log_evento('--- Resultados do Paredão ---', color="red")
+        for j in range(len(self.participantes)):
+            self.log_evento(f'Participante {self.participantes[j].nome} recebeu {votos_em_cada_participante[j]} votos.', color="red") 
+        self.log_evento("-" * 20, color="red")
+        self.log_evento(
+            f'Infelizmente {self.participantes[indice_mais_votado].nome} com {votos_em_cada_participante[indice_mais_votado]} votos foi eliminado(a) nesse paredão.' 
+            , color="red"
+        )   
+        self.participantes = [
+            self.participantes[k] for k in range(len(self.participantes)) if k != indice_mais_votado
+        ]
+        
     def evento_social(self):
         """Simula um evento social que pode mudar o humor dos participantes."""
         from caracteristica import Caracteristicas
