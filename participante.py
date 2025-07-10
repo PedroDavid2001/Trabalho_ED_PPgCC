@@ -11,9 +11,10 @@
 # > gosta (caracteristicas que ele gosta em outra pessoa) -> int[]
 # > detesta (caracteristicas que ele NAO gosta em outra pessoa) -> int[]
 
+from typing import Literal
 from caracteristica import semelhantes
 from caracteristica import Caracteristicas
-import humor
+from humor import Humor
 import random as rd
 
 
@@ -25,12 +26,12 @@ class Participante:
         self.detesta = detesta
 
         self.aptidao_fisica: int = definir_aptidao_fisica(self.caracteristicas)
-        self.humor: str = definir_humor_inicial(self.caracteristicas)
+        self.humor = definir_humor_inicial(self.caracteristicas)
 
         return
 
     # funciona como um setter de humor
-    def humor_atual(self, humor: str):
+    def humor_atual(self, humor: Humor):
         self.humor = humor
 
 
@@ -67,20 +68,20 @@ def selecionar_caracteristicas() -> list:
     return caracteristicas
 
 
-def definir_humor_inicial(caracteristicas=[]) -> str:
+def definir_humor_inicial(caracteristicas=[]) -> Humor:
 
     if Caracteristicas.PREGUICOSO in caracteristicas:
-        return humor.CANSADO
+        return Humor.CANSADO
 
     if any(
         c in caracteristicas
         for c in (Caracteristicas.AMIGAVEL, Caracteristicas.TAGARELA)
-    ): return humor.ALEGRE
+    ): return Humor.ALEGRE
 
     if Caracteristicas.TIMIDO in caracteristicas:
-        return humor.TRISTE
+        return Humor.TRISTE
 
-    return humor.NEUTRO
+    return Humor.NEUTRO
 
 
 def definir_aptidao_fisica(caracteristicas=[]) -> int:
@@ -93,22 +94,3 @@ def definir_aptidao_fisica(caracteristicas=[]) -> int:
         apt -= 30
 
     return apt
-
-
-# trecho usado para testar os metodos
-# p1 = gerar_participante('Pedro')
-# p2 = gerar_participante('Paulo')
-
-# print("Participante 1: ", p1.nome)
-# print("aptidao fisica: " , p1.aptidao_fisica)
-# print("caracteristicas: " , p1.caracteristicas)
-# print("gosta de: " , p1.gosta)
-# print("não gosta de: " , p1.detesta)
-# print("está se sentindo: " , p1.humor)
-
-# print("Participante 2: " , p2.nome)
-# print("aptidao fisica: " , p2.aptidao_fisica)
-# print("caracteristicas: " , p2.caracteristicas)
-# print("gosta de: " , p2.gosta)
-# print("não gosta de: " , p2.detesta)
-# print("está se sentindo: " , p2.humor)

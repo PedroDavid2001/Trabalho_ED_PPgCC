@@ -5,8 +5,9 @@
 # Optei por criar essas variaveis para 
 # acessar mais facilmente os valores.
 
-ALEGRE = "ALEGRE"
-IRRITADO = "IRRITADO"
-CANSADO = "CANSADO"
-TRISTE = "TRISTE"
-NEUTRO = "NEUTRO"
+class Humor:
+    ALEGRE = "😀 ALEGRE"
+    IRRITADO = "😠 IRRITADO"
+    CANSADO = "😴 CANSADO"
+    TRISTE = "😢 TRISTE"
+    NEUTRO = "😐 NEUTRO"

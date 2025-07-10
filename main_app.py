@@ -7,20 +7,21 @@ from participante import gerar_participante, Participante
 from evento import Evento
 from relacoes import MatrizRelacoes
 
+
 class RealityShowApp:
-    def __init__(self, master):
+    def __init__(self, master: tk.Tk):
         self.master = master
         master.title("Simulador de Reality Show")
         master.geometry("900x700")
-        master.resizable(False, False)
+        master.resizable(True, True)
 
         # Cores para a interface
-        self.primary_color = "#4CAF50"  # Verde vibrante
-        self.secondary_color = "#8BC34A" # Verde claro
+        self.primary_color = "#30A534"  # Verde vibrante
+        self.secondary_color = "#33B633" # Verde claro
         self.accent_color = "#FFC107"   # Amarelo para destaque
         self.text_color = "#FFFFFF"     # Texto branco
-        self.bg_color = "#E8F5E9"       # Fundo levemente verde
-        self.frame_bg = "#DCEDC8"       # Fundo dos frames
+        self.bg_color = "#FFFFFF"       # Fundo levemente verde
+        self.frame_bg = "#FFFFFF"       # Fundo dos frames
 
         master.configure(bg=self.bg_color)
 
@@ -28,11 +29,11 @@ class RealityShowApp:
         style = ttk.Style()
         style.theme_use('clam')
         style.configure(
-            'TFrame', background=self.frame_bg)
+            'TFrame')
         style.configure(
-            'TLabelFrame', background=self.frame_bg, foreground='#333333', font=('Arial', 10, 'bold'))
+            'TLabelFrame', font=('Arial', 10, 'bold'))
         style.configure(
-            'TLabel', background=self.frame_bg, foreground='#333333', font=('Arial', 10))
+            'TLabel', font=('Arial', 10))
         style.configure(
             'TButton', background=self.primary_color, foreground=self.text_color, font=('Arial', 10, 'bold'), relief='flat')
         style.map(
@@ -43,8 +44,8 @@ class RealityShowApp:
             'TText', fieldbackground='white', foreground='#333333')
 
         self.participantes: list[Participante] = []
-        self.dias_simulacao = 0
-        self.dia_atual = 0
+        self.dias_simulacao = int(0)
+        self.dia_atual = int(0)
 
         # --- Frame de Configuração (continua usando pack na parte superior) ---
         self.config_frame = ttk.LabelFrame(master, text="Configuração da Simulação")
@@ -130,7 +131,7 @@ class RealityShowApp:
                 char_names = [c.name for c in p.caracteristicas]
                 self.participants_list_text.insert(tk.END,
                     f"- {p.nome}\n"
-                    f"  Aptidão: {p.aptidao_fisica}, Humor: {p.humor.lower()}\n"
+                    f"  Aptidão: {p.aptidao_fisica}, Humor: {p.humor}\n"
                     f"  Características: {', '.join(char_names)}\n\n"
                 )
         self.participants_list_text.config(state="disabled")
@@ -180,7 +181,7 @@ class RealityShowApp:
                 gosta_names = [c.name for c in p.gosta]
                 detesta_names = [c.name for c in p.detesta]
 
-                self.log_evento(f"- {p.nome} (Apt: {p.aptidao_fisica}, Humor: {p.humor.lower()})")
+                self.log_evento(f"- {p.nome} (Apt: {p.aptidao_fisica}, Humor: {p.humor})")
                 self.log_evento(f"  Caracteristicas: {', '.join(char_names)}")
                 self.log_evento(f"  Gosta: {', '.join(gosta_names) if gosta_names else 'Nenhum'}")
                 self.log_evento(f"  Detesta: {', '.join(detesta_names) if detesta_names else 'Nenhum'}\n")
@@ -265,6 +266,7 @@ class RealityShowApp:
     def evento_social(self):
         """Simula um evento social que pode mudar o humor dos participantes."""
         from caracteristica import Caracteristicas
+        from humor import Humor
 
         if not self.participantes:
             return
@@ -283,12 +285,12 @@ class RealityShowApp:
 
         # Exemplo de interação: se um é tagarela e o outro tímido, o tímido pode ficar irritado ou triste
         if Caracteristicas.TAGARELA in p1.caracteristicas and Caracteristicas.TIMIDO in p2.caracteristicas:
-            p2.humor_atual("IRRITADO")
+            p2.humor_atual(Humor.IRRITADO)
             self.log_evento(
                 f"- {p2.nome} (tímido) ficou IRRITADO com a tagarelice de {p1.nome}.", color="purple")
 
-        elif Caracteristicas.AMIGAVEL in p1.caracteristicas and p2.humor == "TRISTE":
-            p2.humor_atual("NEUTRO")
+        elif Caracteristicas.AMIGAVEL in p1.caracteristicas and p2.humor == Humor.TRISTE:
+            p2.humor_atual(Humor.NEUTRO)
             self.log_evento(
                 f"- {p1.nome} (amigável) ajudou {p2.nome} a se sentir NEUTRO novamente.", color="green")
 
@@ -296,10 +298,11 @@ class RealityShowApp:
             # Caso geral: humor aleatório para alguns
             for p in random.sample(self.participantes, k=min(len(self.participantes), 3)): # Afeta até 3 participantes
                 old_humor = p.humor
-                possible_humors = ["ALEGRE", "IRRITADO", "CANSADO", "TRISTE", "NEUTRO"]
+                possible_humors = [Humor.ALEGRE, Humor.IRRITADO, Humor.CANSADO, Humor.TRISTE, Humor.NEUTRO]
                 new_humor = random.choice([h for h in possible_humors if h != old_humor])
                 p.humor_atual(new_humor)
-                self.log_evento(f"- O humor de {p.nome} mudou de {old_humor.lower()} para {new_humor.lower()}.", color="darkblue")
+                self.log_evento(
+                    f"- O humor de {p.nome} mudou de {old_humor} para {new_humor}.", color="darkblue")
 
 
 if __name__ == "__main__":
