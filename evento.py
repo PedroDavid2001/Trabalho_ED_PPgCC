@@ -116,7 +116,7 @@ class Evento:
 
     def paredao(
         self, participantes: list[Participante]
-    ) -> tuple[list[Participante], Participante | None]:
+    ) -> tuple[list[Participante], Participante | None, int | None]:
         """
         Simula o evento do Paredão, onde os participantes votam para eliminar alguém.
         O participante com a pior relação é votado.
@@ -177,4 +177,4 @@ class Evento:
             p for p in participantes if p != participante_eliminado
         ]
 
-        return participantes_apos_eliminacao, participante_eliminado
+        return participantes_apos_eliminacao, participante_eliminado, maior_voto

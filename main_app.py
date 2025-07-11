@@ -273,10 +273,10 @@ class RealityShowApp:
             
             elif event_type == "voting":
                 self.log_evento("--- Será realizado o Paredão! ---", color="red")
-                self.participantes, eliminado = current_event.paredao(self.participantes) # Chama o método da instância de Evento
+                self.participantes, eliminado, maior_voto = current_event.paredao(self.participantes) # Chama o método da instância de Evento
                 if eliminado:
                     self.log_evento(
-                        f"Infelizmente {eliminado.nome} foi eliminado(a) nesse paredão.",
+                        f"Infelizmente {eliminado.nome} foi eliminado(a) com {maior_voto} votos.",
                         color="red")
                 else:
                     self.log_evento(
