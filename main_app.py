@@ -164,8 +164,9 @@ class RealityShowApp:
             self.log_text.delete(1.0, tk.END)
             self.log_text.config(state="disabled")
 
-            # Reseta a lista de participantes e gera novos
-            self.participantes = [Participante.gerar_participante(nome) for nome in nomes]
+            # Reseta a lista de participantes se alguem tiver vencido na ultima simulação
+            if len(self.participantes) <= 1:
+                self.participantes = [Participante.gerar_participante(nome) for nome in nomes]
 
             self.log_evento(
                 f"Iniciando simulação com {len(self.participantes)} participantes por {duracao} dias.",
@@ -204,7 +205,6 @@ class RealityShowApp:
             messagebox.showerror(
                 "Erro de Entrada",
                 "Por favor, insira um número válido para a duração.")
-
 
     def simular_proximo_dia(self):
         """Simula o próximo dia da casa, incluindo eventos e atualizações de status."""
